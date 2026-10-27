@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="sk" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Porovnanie technických možností programov na strih a spracovanie videa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f4f8;--surface:#fff;--text:#1b2231;--muted:#566075;--line:#d9dee8;--accent:#2f5bd8;--vid:#3a6bd0;--aud:#23805d;--fx:#7448c2;--mk:#e5772a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171a20;--surface:#21262e;--text:#e7eaf0;--muted:#9ba4b6;--line:#333a46;--accent:#8aa8ff;--vid:#34599f;--aud:#25755a;--fx:#654299}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#171a20;--surface:#21262e;--text:#e7eaf0;--muted:#9ba4b6;--line:#333a46;--accent:#8aa8ff;--vid:#34599f;--aud:#25755a;--fx:#654299}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font:400 1.05rem/1.65 "Source Sans 3",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque","Source Sans 3",system-ui,sans-serif;line-height:1.15;margin:0}
+.wrap{max-width:1000px;margin:0 auto;padding:0 1.25rem}
+header{padding:3.5rem 0 2rem}
+h1{font-size:clamp(1.9rem,5vw,3.1rem);font-weight:800;letter-spacing:-.02em;max-width:24ch}
+.lead{max-width:60ch;color:var(--muted);font-size:1.15rem;margin:1.1rem 0 2rem}
+.scroll{overflow-x:auto;max-width:100%}
+.tl{position:relative;min-width:680px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.6rem .6rem .7rem 3rem}
+.ruler{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);padding-bottom:.4rem;border-bottom:1px solid var(--line);margin-bottom:.5rem;font-variant-numeric:tabular-nums}
+.row{height:2.6rem;margin-bottom:4px;position:relative}
+.row>b{position:absolute;left:-2.6rem;top:0;bottom:0;width:2.2rem;display:flex;align-items:center;font-size:.75rem;color:var(--muted)}
+.clip{position:absolute;top:0;bottom:0;padding:0 .7rem;line-height:2.6rem;border-radius:4px;color:#fff;text-decoration:none;font-weight:600;font-size:.95rem;white-space:nowrap;overflow:hidden;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.clip:hover,.clip:focus-visible{outline:2px solid var(--text);outline-offset:1px}
+.v{background:var(--vid)}.a{background:var(--aud)}.f{background:var(--fx)}
+.gap{flex:none}
+.head{position:absolute;top:.3rem;bottom:.3rem;left:31%;width:2px;background:var(--mk);cursor:ew-resize;touch-action:none;z-index:2}
+.head::before{content:"";position:absolute;top:-2px;left:-7px;border:8px solid transparent;border-top-color:var(--mk)}
+.head::after{content:"";position:absolute;top:0;bottom:0;left:-11px;width:24px}
+.head:focus{outline:none}
+.head:focus-visible::before{filter:drop-shadow(0 0 3px var(--text))}
+.ruler{cursor:ew-resize;touch-action:none;user-select:none;-webkit-user-select:none}
+.clip.on{box-shadow:inset 0 0 0 2px rgba(255,255,255,.85)}
+.tc{display:flex;flex-wrap:wrap;align-items:baseline;gap:.3rem 1.2rem;margin-top:.8rem;color:var(--muted)}
+.tc output{font:600 1.2rem/1 ui-monospace,Menlo,Consolas,monospace;color:var(--text);font-variant-numeric:tabular-nums}
+.tc b{color:var(--text)}
+.clip.drag{cursor:grabbing;z-index:1;filter:brightness(1.12)}
+.razor .clip{cursor:crosshair}
+.rz{position:absolute;width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.55);pointer-events:none;display:none;z-index:3}
+.mode{color:var(--text);font-weight:600}
+main section{padding:3rem 0 .5rem;border-top:1px solid var(--line);margin-top:2.5rem}
+h2{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:800;margin-bottom:.8rem}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:.35rem}
+p{margin:.4rem 0 1rem;max-width:70ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin:1.2rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:1.1rem 1.2rem}
+.card p{margin:.2rem 0 0;font-size:1rem}
+tbody tr:hover td{background:var(--bg)}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+.card{transition:transform .25s cubic-bezier(.2,.7,.3,1),box-shadow .25s ease}
+.card{position:relative}
+.card:hover{transform:scale(1.04);box-shadow:0 12px 28px rgba(0,0,0,.2);z-index:1}
+
+
+}
+.card .meta{color:var(--muted);font-size:.9rem;margin-bottom:.5rem}
+.card.v-b{border-top:4px solid var(--vid)}.card.a-b{border-top:4px solid var(--aud)}.card.f-b{border-top:4px solid var(--fx)}
+ol.steps{padding-left:1.3rem;max-width:70ch}ol.steps li{margin-bottom:.4rem;padding-left:.3rem}
+ul.tips{padding-left:1.2rem;max-width:70ch}ul.tips li{margin-bottom:.45rem}
+table{border-collapse:collapse;width:100%;min-width:620px;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.55rem .8rem;text-align:left;vertical-align:top}
+th{background:var(--bg);font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:600}
+kbd{font:600 .88rem/1 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:.15rem .4rem;white-space:nowrap}
+.note{color:var(--muted);font-size:.95rem}
+dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:.6rem 2rem;margin:1rem 0}
+dt{font-weight:600}dd{margin:0 0 .5rem;color:var(--muted)}
+footer{padding:2.5rem 0 3rem;margin-top:3rem;border-top:1px solid var(--line);color:var(--muted);font-size:.95rem}
+@media (max-width:600px){header{padding-top:2rem}}
+.demo{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+.demo figure{margin:0}.demo figcaption{font-size:.9rem;color:var(--muted);margin-top:.35rem}
+.scene{position:relative;overflow:hidden;border-radius:8px;border:1px solid var(--line)}
+.scene svg{display:block;width:100%;height:auto}
+.flat{filter:contrast(.62) saturate(.45) brightness(1.15)}
+.tint{position:absolute;inset:0;mix-blend-mode:soft-light;pointer-events:none;opacity:0}
+.ctl{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem 1.5rem}
+.ctl label{display:flex;flex-direction:column;font-size:.95rem}.ctl input{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem;margin:.8rem 0;grid-column:1/-1}
+.btn{font:600 .95rem "Source Sans 3",system-ui,sans-serif;padding:.5rem 1rem;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.hist{list-style:none;margin:1rem 0;padding:0 0 0 1.4rem;border-left:3px solid var(--vid);max-width:70ch}
+.hist li{position:relative;margin-bottom:1rem}
+.hist li::before{content:"";position:absolute;left:calc(-1.4rem - 8px);top:.5rem;width:13px;height:13px;border-radius:50%;background:var(--vid)}
+.bar{position:fixed;top:env(safe-area-inset-top,0px);left:0;width:100%;height:3px;background:var(--mk);transform-origin:left;transform:scaleX(0);z-index:20}
+
+@media (max-width:600px){.demo{grid-template-columns:1fr}}
+table.sm{min-width:0;max-width:640px}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem 1.5rem;margin:.8rem 0;max-width:700px}
+.calc label{display:flex;flex-direction:column;font-size:.95rem}
+.calc input{font:inherit;padding:.45rem .6rem;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--text)}
+.calc p{grid-column:1/-1;margin:0}
+.top{position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));width:3rem;height:3rem;border-radius:50%;border:0;padding:0;background:var(--accent);color:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:10}
+.top:hover{filter:brightness(1.1)}
+.top:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+.top svg{width:1.5rem;height:1.5rem}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<header><div class="wrap">
+<h1>Porovnanie technických možností programov na strih a spracovanie videa</h1>
+<p class="lead">Technický pohľad na strihové programy: hardvérová náročnosť, kodeky, veľkosť videa, úložisko a sieť.</p>
+<div class="scroll"><nav class="tl" aria-label="Obsah stránky">
+<div class="ruler"><span>00:00</span><span>00:10</span><span>00:20</span><span>00:30</span><span>00:40</span><span>00:50</span></div>
+<div class="row"><b>V2</b><a class="clip f" style="left:12%;width:26%" href="#export">Export</a><a class="clip f" style="left:44%;width:30%" href="#kodeky">Kodeky</a></div>
+<div class="row"><b>V1</b><a class="clip v" style="left:0%;width:34.5%" href="#programy">Programy</a><a class="clip v" style="left:35%;width:34.5%" href="#pc">Počítač a render</a><a class="clip v" style="left:70%;width:30%" href="#siet">Sieť a úložisko</a></div>
+<div class="row"><b>A1</b><a class="clip a" style="left:0%;width:45%" href="#meranie">Meranie</a><a class="clip a" style="left:52%;width:48%" href="#zdroje">Zdroje</a></div>
+<div class="head" id="head" role="slider" tabindex="0" aria-label="Prehrávacia hlava" aria-valuemin="0" aria-valuemax="50" aria-valuenow="15"></div>
+</nav></div>
+<div class="tc"><output id="tc">00:00:15:12</output><span>Pod hlavou: <b id="cur">Programy</b></span><span id="mode" class="mode" hidden></span></div>
+</div></header>
+
+<main class="wrap">
+
+<section id="programy">
+<h2>Najpoužívanejšie strihové programy</h2>
+<p>Výber programu závisí od rozpočtu, počítača a typu projektov. Základné princípy strihu sú vo všetkých rovnaké, takže po zvládnutí jedného programu sa prechod na iný dá zvládnuť pomerne rýchlo.</p>
+<div class="grid">
+<div class="card"><h3>Adobe Premiere Pro</h3><div class="meta">Windows, macOS · predplatné</div><p>Priemyselný štandard v mnohých štúdiách. Silné prepojenie s After Effects a Photoshopom. Nevýhodou sú priebežné náklady a vyššie nároky na výkon.</p></div>
+<div class="card"><h3>DaVinci Resolve</h3><div class="meta">Windows, macOS, Linux · bezplatná verzia aj platená Studio</div><p>Strih, farbenie, efekty (Fusion) a zvuk (Fairlight) v jednom programe. Farbenie patrí k najlepším na trhu. Učí sa náročnejšie.</p></div>
+<div class="card"><h3>Final Cut Pro</h3><div class="meta">macOS (aj iPad) · jednorazový nákup</div><p>Rýchly na počítačoch Mac vďaka optimalizácii na čipy Apple. Používa „magnetický“ timeline. Nie je dostupný pre Windows.</p></div>
+<div class="card"><h3>CapCut</h3><div class="meta">Mobil, počítač, web · základ zadarmo</div><p>Obľúbený pri krátkych videách na TikTok a Reels. Ponúka automatické titulky a šablóny. Menej presné ovládanie, časť funkcií je platená.</p></div>
+<div class="card"><h3>Kdenlive a Shotcut</h3><div class="meta">Windows, macOS, Linux · open source, zadarmo</div><p>Úplne bezplatné programy bez vodoznaku. Vhodné na školské projekty a úvod do strihu, majú však menej prepracované prostredie.</p></div>
+<div class="card"><h3>VEGAS Pro (Sony Vegas)</h3><div class="meta">Windows · platený</div><p>Pôvodne Sony Vegas, dnes ho vyvíja iná firma. Má prehľadné a rýchle prostredie, medzi profesionálmi je však menej bežný ako Premiere Pro alebo DaVinci Resolve.</p></div>
+<div class="card"><h3>Avid Media Composer</h3><div class="meta">Windows, macOS · predplatné</div><p>Tradičný nástroj filmového a televízneho priemyslu, najmä pri veľkých tímoch a obrovskom množstve materiálu.</p></div>
+</div>
+<h3>Porovnanie programov</h3>
+<div class="scroll"><table>
+<thead><tr><th>Program</th><th>Hardvérová náročnosť</th><th>Formáty</th><th>Licencia</th><th>Silná stránka</th></tr></thead>
+<tbody>
+<tr><td>DaVinci Resolve</td><td>Vysoká, najmä na grafickú kartu</td><td>Veľmi široká podpora</td><td>Zdarma, platená verzia Studio jednorazovo</td><td>Farbenie a všetko v jednom programe</td></tr>
+<tr><td>Premiere Pro</td><td>Vysoká, záťaž na procesor a RAM</td><td>Veľmi široká podpora</td><td>Predplatné</td><td>Prepojenie s Adobe a Media Encoder</td></tr>
+<tr><td>VEGAS Pro</td><td>Stredná</td><td>Dobrá podpora</td><td>Platený (over aktuálny model)</td><td>Rýchle a prehľadné prostredie</td></tr>
+<tr><td>CapCut</td><td>Nízka, zvláda aj mobil</td><td>Základné formáty</td><td>Zdarma, časť funkcií platená</td><td>Jednoduché krátke videá</td></tr>
+</tbody></table></div>
+<h3>Test na ukážkovom videu</h3>
+<div class="scroll"><table>
+<thead><tr><th>Program</th><th>Čas renderovania</th><th>Veľkosť súboru</th><th>Vyťaženie CPU</th><th>Vyťaženie GPU</th></tr></thead>
+<tbody>
+<tr><td>DaVinci Resolve</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>Premiere Pro</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>VEGAS Pro</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>CapCut</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+</tbody></table></div>
+<p class="note">Pre úplných začiatočníkov na zariadeniach Apple sa hodí aj bezplatný iMovie.</p>
+</section>
+
+<section id="export">
+<h2>Export, formáty a parametre videa</h2>
+<div class="grid">
+<div class="card f-b"><h3>Rozlíšenie</h3><p>Full HD je 1920×1080, 4K je 3840×2160. Zvislé video pre mobily má pomer 9:16, teda 1080×1920.</p></div>
+<div class="card f-b"><h3>Snímková frekvencia (fps)</h3><p>24 fps dáva filmový dojem, 25 fps je štandard v Európe (PAL), 30 a 60 fps pôsobia plynulejšie. Export má zodpovedať natočenému materiálu.</p></div>
+<div class="card f-b"><h3>Bitrate</h3><p>Určuje, koľko dát sa použije na sekundu videa. Vyšší bitrate znamená lepšiu kvalitu, no väčší súbor.</p></div>
+</div>
+</section>
+
+<section id="kodeky">
+<h2>Kodeky, kontajnery a veľkosť videa</h2>
+<p>Kodek určuje, ako sa obraz a zvuk komprimujú. Kontajner (.mp4, .mov, .mkv) je „obal“, v ktorom je uložený obraz, zvuk aj titulky. MP4 je najuniverzálnejší, MOV je typický pre Apple a ProRes a MKV je obľúbený pri nahrávaní (napríklad v OBS).</p>
+<div class="scroll"><table>
+<thead><tr><th>Kodek</th><th>Použitie</th><th>Výhody</th><th>Nevýhody</th></tr></thead>
+<tbody>
+<tr><td>H.264 (AVC)</td><td>Web, YouTube, mobily, bežné kamery</td><td>Prehrá ho takmer všetko, rýchly export</td><td>Pri 4K menej efektívny</td></tr>
+<tr><td>H.265 (HEVC)</td><td>4K, novšie kamery a mobily</td><td>Pri podobnej kvalite často až o polovicu menší súbor</td><td>Náročnejší na strih, slabšia podpora</td></tr>
+<tr><td>ProRes</td><td>Strih a archivácia (Apple)</td><td>Vysoká kvalita, ľahký na strih</td><td>Veľmi veľké súbory</td></tr>
+<tr><td>DNxHR</td><td>Alternatíva k ProRes (Avid)</td><td>Podobné vlastnosti ako ProRes</td><td>Veľké súbory</td></tr>
+<tr><td>AV1</td><td>Streamovanie (YouTube, Netflix)</td><td>Veľmi účinná kompresia bez licenčných poplatkov</td><td>Pomalé kódovanie, vyžaduje novší hardvér</td></tr>
+</tbody></table></div>
+<h3>Koľko dát vytvorí video</h3>
+<p>Veľkosť súboru sa rovná bitrate krát dĺžka delené osem. Pri 20 Mbps vychádza minúta videa na 150 MB, pri 50 Mbps na 375 MB. Pri H.265 s rovnakým bitrate je kvalita lepšia, alebo stačí nižší bitrate pri rovnakej kvalite.</p>
+<div class="calc">
+<label>Bitrate (Mbps)<input type="number" id="cb" value="50" min="1" max="2000"></label>
+<label>Dĺžka videa (minúty)<input type="number" id="cm" value="2" min="0.1" step="0.5"></label>
+<p id="co" aria-live="polite"></p>
+</div>
+</section>
+
+<section id="pc">
+<h2>Počítač a render</h2>
+<p>Výkon počítača rozhoduje o tom, ako plynulo sa strihá a ako rýchlo sa video exportuje. Dôležité je poznať, čo ktorá súčasť robí.</p>
+<div class="grid">
+<div class="card a-b"><h3>CPU a GPU</h3><p>Procesor (CPU) dekóduje a kóduje video a rieši logiku programu. Grafická karta (GPU) urýchľuje efekty, farbenie a náhľad. DaVinci Resolve stavia na GPU veľmi silno, pri Premiere Pro záleží aj na CPU.</p></div>
+<div class="card a-b"><h3>Hardvérová akcelerácia</h3><p>Využitie špeciálnych čipov (napríklad NVENC od NVIDIA, Quick Sync od Intelu alebo VideoToolbox na Macu) na rýchle kódovanie a dekódovanie. Export je rýchlejší, no pri rovnakej veľkosti môže byť kvalita o niečo nižšia.</p></div>
+<div class="card a-b"><h3>RAM</h3><p>Orientačne: 16 GB je rozumné minimum, 32 GB je pohodlné pre 4K a 64 GB sa hodí pri náročných efektoch. Pri nedostatku RAM sa program spomalí a môže spadnúť.</p></div>
+<div class="card a-b"><h3>SSD a HDD</h3><p>SSD nemá pohyblivé súčasti a číta dáta rádovo rýchlejšie (SATA SSD asi 500 MB/s, NVMe niekoľko GB/s, HDD asi 100 až 200 MB/s). Aktívne projekty patria na SSD, archív na väčší disk alebo NAS.</p></div>
+<div class="card a-b"><h3>Render a export</h3><p>Render je prepočítanie efektov, farieb a prechodov do výsledného obrazu. Export je uloženie finálneho súboru v zvolenom kodeku a formáte. V praxi sa slová často používajú ako synonymá.</p></div>
+<div class="card a-b"><h3>Media Encoder</h3><p>Premiere Pro môže poslať projekt do samostatného programu Adobe Media Encoder, ktorý renderuje vo fronte na pozadí. Počas exportu tak môžeš strihať ďalej.</p></div>
+<div class="card a-b"><h3>OBS a streamovanie</h3><p>OBS Studio je bezplatný program na nahrávanie obrazovky a streamovanie. Pri streameroch sa používa aj dva počítače, jeden na hru a druhý na stream. Dnes často stačí jeden výkonný počítač s hardvérovou akceleráciou.</p></div>
+</div>
+</section>
+
+<section id="siet">
+<h2>Sieť a úložisko pre video</h2>
+<p>Video sú veľké dáta, preto pri zdieľaní súborov, zálohovaní a práci vo viacerých ľuďoch rozhoduje o rýchlosti sieť a úložisko. Celý reťazec je rýchly len tak, ako jeho najpomalší článok.</p>
+<div class="scroll"><table>
+<thead><tr><th>Médium alebo sieť</th><th>Orientačná rýchlosť</th><th>Prenos 100 GB videa</th></tr></thead>
+<tbody>
+<tr><td>Sieť 100 Mbps</td><td>asi 12,5 MB/s</td><td>asi 2 h 13 min</td></tr>
+<tr><td>HDD</td><td>100 až 200 MB/s</td><td>asi 8 až 17 min</td></tr>
+<tr><td>Sieť 1 Gbps</td><td>asi 125 MB/s</td><td>asi 13 min</td></tr>
+<tr><td>Sieť 2,5 Gbps</td><td>asi 312 MB/s</td><td>asi 5 min</td></tr>
+<tr><td>SATA SSD</td><td>asi 500 MB/s</td><td>asi 3 min</td></tr>
+<tr><td>Sieť 10 Gbps</td><td>asi 1 250 MB/s</td><td>asi 1 min 20 s</td></tr>
+<tr><td>NVMe SSD</td><td>3 000 MB/s a viac</td><td>pod minútu</td></tr>
+</tbody></table></div>
+<div class="grid">
+<div class="card v-b"><h3>NAS a RAID</h3><p>NAS je sieťové úložisko, ku ktorému sa pripája viac zariadení. RAID 1 zrkadlí dáta, RAID 5 toleruje výpadok jedného disku a RAID 0 len zrýchľuje bez ochrany. RAID nie je záloha.</p></div>
+<div class="card v-b"><h3>Protokoly na zdieľanie</h3><p>Súbory sa zdieľajú cez SMB (bežné vo Windows a macOS) alebo NFS (typické pre Linux). Pri práci s videom sa najčastejšie používa SMB.</p></div>
+<div class="card v-b"><h3>Kábeláž</h3><p>Cat5e zvládne 1 Gbps aj 2,5 Gbps na 100 m. Cat6 zvládne 10 Gbps do asi 55 m a Cat6a 10 Gbps až do 100 m.</p></div>
+<div class="card v-b"><h3>Ethernet a Wi-Fi</h3><p>Kábel dáva stabilnú rýchlosť a nízke oneskorenie. Wi-Fi zdieľa vysielací čas medzi zariadeniami a závisí od vzdialenosti a rušenia, preto sa na veľké videá hodí menej.</p></div>
+<div class="card v-b"><h3>Záloha 3-2-1</h3><p>Tri kópie dát, na dvoch rôznych typoch médií a jedna mimo miesta práce, napríklad v cloude.</p></div>
+<div class="card v-b"><h3>Video a šírka pásma</h3><p>Strihový formát ProRes 422 HQ v 4K má orientačne okolo 700 Mbps, takže jeden prúd takmer zaplní sieť 1 Gbps. Bežné 4K z kamier má desiatky až stovky Mbps.</p></div>
+</div>
+</section>
+
+<section id="meranie">
+<h2>Meranie siete a úložiska</h2>
+<p>Teóriu je dobré overiť vlastnými testami. Každé meranie sa oplatí zopakovať aspoň trikrát a použiť priemer.</p>
+<div class="grid">
+<div class="card a-b"><h3>iperf3</h3><p>Meria skutočnú priepustnosť siete medzi dvoma zariadeniami.</p></div>
+<div class="card a-b"><h3>CrystalDiskMark</h3><p>Meria rýchlosť čítania a zápisu disku vo Windows.</p></div>
+<div class="card a-b"><h3>Správca úloh</h3><p>Ukazuje vyťaženie CPU, GPU, RAM a disku počas renderu.</p></div>
+<div class="card a-b"><h3>ping</h3><p>Zisťuje oneskorenie medzi zariadeniami v sieti.</p></div>
+</div>
+<h3>Kopírovanie testovacieho videa</h3>
+<div class="scroll"><table>
+<thead><tr><th>Médium</th><th>Rýchlosť čítania</th><th>Rýchlosť zápisu</th><th>Čas kopírovania</th></tr></thead>
+<tbody>
+<tr><td>HDD</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>SATA SSD</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>NVMe SSD</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>NAS cez 1 Gbps</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>NAS cez 2,5 Gbps</td><td>—</td><td>—</td><td>—</td></tr>
+</tbody></table></div>
+<h3>Meranie siete</h3>
+<div class="scroll"><table class="sm">
+<thead><tr><th>Spojenie</th><th>Priepustnosť (iperf3)</th><th>Oneskorenie (ping)</th></tr></thead>
+<tbody>
+<tr><td>Wi-Fi</td><td>—</td><td>—</td></tr>
+<tr><td>Ethernet 1 Gbps</td><td>—</td><td>—</td></tr>
+<tr><td>Ethernet 2,5 Gbps</td><td>—</td><td>—</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="zdroje">
+<h2>Zdroje</h2>
+<div class="grid">
+<div class="card"><h3>Zdroje</h3><ul class="tips">
+<li><a href="https://www.adobe.com/products/premiere.html" target="_blank" rel="noopener">Adobe Premiere Pro</a></li>
+<li><a href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank" rel="noopener">DaVinci Resolve (Blackmagic Design)</a></li>
+<li><a href="https://www.capcut.com/" target="_blank" rel="noopener">CapCut</a></li>
+</ul></div>
+</div>
+</section>
+
+</main>
+
+<footer><div class="wrap">
+<p>© 2026 <a href="https://www.instagram.com/simon.labanic/ target="_blank" rel="noopener">Šimon Labanič</a>
+</div></footer>
+
+<button class="top" type="button" aria-label="Späť na začiatok stránky" title="Späť hore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+
+<script>
+(function(){
+  var tl=document.querySelector('.tl'),ruler=tl.querySelector('.ruler'),head=document.getElementById('head'),
+      out=document.getElementById('tc'),cur=document.getElementById('cur'),mode=document.getElementById('mode'),
+      guide=document.createElement('i'),pct=0.31,dur=50,drag=false,razor=false,moved=false,timer=0,
+      RZ='Razor (C): klikni na klip a rozstrihneš ho. V alebo Esc = späť.';
+  guide.className='rz';tl.appendChild(guide);
+  function all(){return Array.prototype.slice.call(tl.querySelectorAll('.clip'));}
+  function L(c){return parseFloat(c.style.left);}
+  function Wd(c){return parseFloat(c.style.width);}
+  function pad(n){return (n<10?'0':'')+n;}
+  function box(){return ruler.getBoundingClientRect();}
+  all().forEach(function(c){c.dataset.l=L(c);c.dataset.w=Wd(c);});
+
+  function set(p){
+    pct=Math.max(0,Math.min(1,p));
+    head.style.left=(ruler.offsetLeft+pct*ruler.offsetWidth-1)+'px';
+    var s=pct*dur,m=Math.floor(s),f=Math.min(24,Math.floor((s-m)*25));
+    var t='00:'+pad(Math.floor(m/60))+':'+pad(m%60)+':'+pad(f);
+    out.textContent=t;
+    head.setAttribute('aria-valuenow',Math.round(s));
+    head.setAttribute('aria-valuetext',t);
+    var x=box().left+pct*ruler.offsetWidth,names=[];
+    all().forEach(function(c){
+      var r=c.getBoundingClientRect(),on=x>=r.left&&x<=r.right;
+      c.classList.toggle('on',on);
+      if(on)names.push(c.textContent);
+    });
+    cur.textContent=names.length?names.join(', '):'prázdne miesto';
+  }
+  function fromEvent(e){var r=box();set((e.clientX-r.left)/r.width);}
+  function down(e){
+    drag=true;
+    try{e.currentTarget.setPointerCapture(e.pointerId);}catch(_){}
+    fromEvent(e);e.preventDefault();
+    head.focus({preventScroll:true});
+  }
+  ruler.addEventListener('pointerdown',down);
+  head.addEventListener('pointerdown',down);
+  document.addEventListener('pointermove',function(e){if(drag)fromEvent(e);});
+  ['pointerup','pointercancel'].forEach(function(t){document.addEventListener(t,function(){drag=false;});});
+  head.addEventListener('keydown',function(e){
+    var step=(e.shiftKey?5:1)/dur,k=e.key;
+    if(k==='ArrowRight'||k==='ArrowUp')set(pct+step);
+    else if(k==='ArrowLeft'||k==='ArrowDown')set(pct-step);
+    else if(k==='Home')set(0);
+    else if(k==='End')set(1);
+    else return;
+    e.preventDefault();
+  });
+
+  /* presúvanie klipov po stope */
+  tl.addEventListener('pointerdown',function(e){
+    var c=e.target.closest('.clip');
+    if(!c||razor||e.button>0)return;
+    var r=box(),s=e.clientX,l0=L(c),w=Wd(c),lo=0,hi=100-w;
+    all().forEach(function(o){
+      if(o===c||o.parentNode!==c.parentNode)return;
+      var ol=L(o),oe=ol+Wd(o);
+      if(oe<=l0+0.01)lo=Math.max(lo,oe);
+      if(ol>=l0+w-0.01)hi=Math.min(hi,ol-w);
+    });
+    moved=false;
+    try{c.setPointerCapture(e.pointerId);}catch(_){}
+    function mv(ev){
+      if(!moved&&Math.abs(ev.clientX-s)<4)return;
+      moved=true;c.classList.add('drag');
+      c.style.left=Math.max(lo,Math.min(hi,l0+(ev.clientX-s)/r.width*100))+'%';
+      set(pct);
+    }
+    function up(){
+      c.removeEventListener('pointermove',mv);c.removeEventListener('pointerup',up);
+      c.removeEventListener('pointercancel',up);c.classList.remove('drag');
+    }
+    c.addEventListener('pointermove',mv);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);
+  });
+
+  /* rez klipu na pozícii p (v %) */
+  function cutAt(c,p){
+    var l=L(c),w=Wd(c);
+    if(p-l<1||l+w-p<1)return false;
+    var n=c.cloneNode(true);
+    n.classList.remove('on','drag');n.classList.add('cut');
+    c.style.width=(p-l)+'%';
+    n.style.left=p+'%';n.style.width=(l+w-p)+'%';
+    c.parentNode.insertBefore(n,c.nextSibling);
+    return true;
+  }
+  tl.addEventListener('click',function(e){
+    var c=e.target.closest('.clip');
+    if(!c)return;
+    e.preventDefault();
+    if(razor){var r=box();cutAt(c,(e.clientX-r.left)/r.width*100);set(pct);return;}
+    if(moved){moved=false;return;}
+    var b=box(),q=c.getBoundingClientRect();
+    set((q.left+q.width/2-b.left)/b.width);
+    var t=document.getElementById(c.getAttribute('href').slice(1));
+    if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  tl.addEventListener('pointermove',function(e){
+    if(!razor)return;
+    var c=e.target.closest('.clip');
+    if(!c){guide.style.display='none';return;}
+    var t=tl.getBoundingClientRect(),r=c.getBoundingClientRect();
+    guide.style.cssText='display:block;left:'+(e.clientX-t.left)+'px;top:'+(r.top-t.top)+'px;height:'+r.height+'px';
+  });
+  tl.addEventListener('pointerleave',function(){guide.style.display='none';});
+
+  /* easter egg: C = razor, S = rez na hlave, V/Esc = výber, R = obnoviť */
+  function say(msg,keep){
+    clearTimeout(timer);mode.hidden=false;mode.textContent=msg;
+    if(!keep)timer=setTimeout(function(){if(razor)say(RZ,true);else mode.hidden=true;},2200);
+  }
+  function setRazor(on){
+    razor=on;tl.classList.toggle('razor',on);clearTimeout(timer);
+    if(on)say(RZ,true);else{mode.hidden=true;guide.style.display='none';}
+  }
+  document.addEventListener('keydown',function(e){
+    if(e.ctrlKey||e.metaKey||e.altKey)return;
+    var k=e.key.toLowerCase();
+    if(k==='c')setRazor(!razor);
+    else if((k==='v'||k==='escape')&&razor)setRazor(false);
+    else if(k==='s'){
+      var p=pct*100,n=0;
+      all().forEach(function(c){if(p>L(c)&&p<L(c)+Wd(c)&&cutAt(c,p))n++;});
+      set(pct);say(n?'Rez na pozícii hlavy (S)':'Pod hlavou nie je čo rozstrihnúť');
+    }
+    else if(k==='r'){
+      all().forEach(function(c){
+        if(c.classList.contains('cut'))c.remove();
+        else{c.style.left=c.dataset.l+'%';c.style.width=c.dataset.w+'%';}
+      });
+      set(pct);say('Časová os obnovená (R)');
+    }
+  });
+
+  window.addEventListener('resize',function(){set(pct);});
+  window.addEventListener('load',function(){set(pct);});
+  set(pct);
+})();
+(function(){
+  var root=document.documentElement,bar=document.getElementById('bar');
+  function pr(){var mx=root.scrollHeight-root.clientHeight,y=window.pageYOffset||root.scrollTop;bar.style.transform='scaleX('+(mx>0?Math.min(1,y/mx):0)+')';}
+  window.addEventListener('scroll',pr,{passive:true});pr();
+})();
+(function(){
+  var b=document.getElementById('cb'),m=document.getElementById('cm'),o=document.getElementById('co');
+  function f(n){return n.toFixed(1).replace('.',',');}
+  function t(s){if(s<60)return f(s)+' s';var r=Math.round(s);return Math.floor(r/60)+' min '+(r%60)+' s';}
+  function calc(){
+    var br=+b.value,mn=+m.value;
+    if(!(br>0&&mn>0)){o.textContent='Zadaj kladné čísla.';return;}
+    var bits=br*60*mn,mb=bits/8;
+    o.innerHTML='Veľkosť: <b>'+(mb>=1000?f(mb/1000)+' GB':f(mb)+' MB')+'</b>. Prenos po sieti (teoreticky): 100 Mbps za '+t(bits/100)+', 1 Gbps za '+t(bits/1000)+', 2,5 Gbps za '+t(bits/2500)+'.';
+  }
+  b.addEventListener('input',calc);m.addEventListener('input',calc);calc();
+})();
+var up=document.querySelector('.top');
+up.addEventListener('click',function(){
+  var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({top:0,behavior:calm?'auto':'smooth'});
+});
+</script>
+</body>
+</html>
